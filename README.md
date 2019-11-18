@@ -1,4 +1,4 @@
-# Python toolkit.geospatial package
+# Python streamsx.geospatial package
 
 This exposes SPL operators in the `com.ibm.streamsx.geospatial` toolkit as Python methods.
 
