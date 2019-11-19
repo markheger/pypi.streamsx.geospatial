@@ -49,7 +49,16 @@ When the documented sample must be changed, change it here:
 - ./package/streamsx/geospatial/\_\_init\_\_.py
 - ./package/DESC.txt
 
+## Environment
 
+You need the streamsx package in version 1.13.15 to use and test the streamsx.geospatial package. Install it like this:
+
+    pip install streamsx==1.13.15
+
+In addition you should unset the PYTHONPATH variable to not use the streams package included in your local Streams installation:
+
+    unset PYTHONPATH
+    
 ## Test
 
 When using local build (e.g. not forcing remote build), then you need to specifiy the toolkit location, for example:
