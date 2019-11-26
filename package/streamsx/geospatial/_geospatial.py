@@ -13,7 +13,7 @@ import json
 def _add_toolkit_dependency(topo):
     # IMPORTANT: Dependency of this python wrapper to a specific toolkit version
     # This is important when toolkit is not set with streamsx.spl.toolkit.add_toolkit (selecting toolkit from remote build service)
-    streamsx.spl.toolkit.add_toolkit_dependency(topo, 'com.ibm.streams.geospatial', '[2.0.0,4.0.0)')
+    streamsx.spl.toolkit.add_toolkit_dependency(topo, 'com.ibm.streams.geospatial', '[3.4.0,4.0.0)')
 
 def _check_time_param(time_value, parameter_name):
     if isinstance(time_value, datetime.timedelta):
@@ -55,7 +55,7 @@ def region_match(stream, schema, model_input_attribute_mapping, model_output_att
     Returns:
         Output Stream with specified schema
     """
-    # python wrapper pmml toolkit dependency
+    # python wrapper geospatial toolkit dependency
     _add_toolkit_dependency(stream.topology)
 
     if model_path is None and model_stream is None:
