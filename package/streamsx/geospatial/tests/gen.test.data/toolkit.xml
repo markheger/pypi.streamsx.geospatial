@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<toolkitModel xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkit" productVersion="4.3.0.0" xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:ti="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <toolkit name="gen.test.data" requiredProductVersion="4.3.0.0" version="1.0.0">
+    <description/>
+    <uriTable>
+      <uri index="1" value="test/GenRegionData.spl"/>
+    </uriTable>
+    <namespace name="test">
+      <compositeOp column="18" line="5" name="GenData" potentialMain="false" public="true" uriIndex="1">
+        <outputPort name="DeviceEvents" portIndex="0"/>
+        <outputPort name="RegionData" portIndex="1"/>
+        <type column="3" line="9" name="DeviceEvent" type="tuple&lt;rstring id, float64 latitude, float64 longitude, timestamp timeStamp, rstring matchEventType, rstring regionName>" uriIndex="1"/>
+      </compositeOp>
+    </namespace>
+    <dependency>
+      <common:name>com.ibm.streams.geospatial</common:name>
+      <common:version>3.4.0</common:version>
+    </dependency>
+    <sabFiles>
+      <ti:include path="toolkit.xml" root="toolkitDir"/>
+      <ti:include path="impl/java/lib/**" root="toolkitDir"/>
+      <ti:include path="impl/java/bin/**" root="toolkitDir"/>
+      <ti:include path="impl/bin/**" root="toolkitDir"/>
+      <ti:include path="impl/lib/**" root="toolkitDir"/>
+      <ti:include path="impl/nl/*.dat" root="toolkitDir"/>
+      <ti:include path="etc/**" root="toolkitDir"/>
+      <ti:include path="lib/**" root="toolkitDir"/>
+      <ti:include path="nl/**" root="toolkitDir"/>
+      <ti:include path="opt/**" root="toolkitDir"/>
+    </sabFiles>
+  </toolkit>
+
+</toolkitModel>
