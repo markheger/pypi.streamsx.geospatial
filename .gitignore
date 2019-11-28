@@ -105,3 +105,5 @@ venv.bak/
 
 /package/*.sab
 /package/*.json
+/package/job*.tar.gz
+/**/toolkit.xml
