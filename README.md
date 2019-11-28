@@ -68,30 +68,15 @@ When using local build (e.g. not forcing remote build), then you need to specifi
 
 ### Build only test
 
-
-```
-cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialBuildOnlyTest
-```
-
-
-
-### Standalone test
-
-Make sure that the streams environment is set and the environment variable:
-STREAMS_INSTALL is setup.
-
 Run the test with:
 
-    ant test-standalone
+    ant test-build-only
 
-or
 
 ```
 cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialStandaloneTest
+python3 -u -m unittest streamsx.geospatial.tests.test_regionmatch.Test
 ```
-
 
 
 ### Distributed test
@@ -107,7 +92,7 @@ or
 
 ```
 cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialDistributedTest
+python3 -u -m unittest streamsx.geospatial.tests.test_regionmatch.TestDistributed
 ```
 
 
@@ -124,6 +109,6 @@ or
 
 ```
 cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialStreamingAnalyticsTest
+python3 -u -m unittest streamsx.geospatial.tests.test_regionmatch.TestStreamingAnalytics
 ```
 
