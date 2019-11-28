@@ -11,11 +11,25 @@ import unittest
 import datetime
 import os
 import json
+from subprocess import call, Popen, PIPE
 
 
-def get_test_tk_path():
+def _get_test_tk_path():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     return script_dir+'/gen.test.data'
+
+def _run_shell_command_line(command):
+    process = Popen(command, universal_newlines=True, shell=True, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+    return stdout, stderr, process.returncode
+
+def _streams_install_env_var():
+    result = True
+    try:
+        os.environ['STREAMS_INSTALL']
+    except KeyError: 
+        result = False
+    return result
 
 class Test(unittest.TestCase):
 
@@ -32,13 +46,19 @@ class Test(unittest.TestCase):
         print(name + ' (BUNDLE):' + str(result))
         assert(result.return_code == 0)
 
+    def _index_toolkit(self, tk):
+        if _streams_install_env_var():
+            cmd = os.environ['STREAMS_INSTALL']+'/bin/spl-make-toolkit -i .'
+            _run_shell_command_line('cd '+tk+'; '+cmd)
+
 
     def test_with_spl_data_gen(self):
         print ('\n---------'+str(self))
         name = 'test_with_spl_data_gen'
         topo = Topology(name)
         toolkit.add_toolkit(topo, self.geospatial_toolkit_home)
-        toolkit.add_toolkit(topo, get_test_tk_path())
+        self._index_toolkit(_get_test_tk_path())
+        toolkit.add_toolkit(topo, _get_test_tk_path())
         events_schema=StreamSchema('tuple<rstring id, float64 latitude, float64 longitude, timestamp timeStamp, rstring matchEventType, rstring regionName>')
         datagen = op.Invoke(topo, kind='test::GenData', schemas=['tuple<rstring id, float64 latitude, float64 longitude, timestamp timeStamp, rstring matchEventType, rstring regionName>','tuple<rstring id, rstring polygonAsWKT, boolean removeRegion, boolean notifyOnEntry, boolean notifyOnExit, boolean notifyOnHangout, int64 minimumDwellTime, int64 timeout>'])
         device_stream = datagen.outputs[0]
@@ -47,7 +67,11 @@ class Test(unittest.TestCase):
         res.print()
 
         if (("TestDistributed" in str(self)) or ("TestStreamingAnalytics" in str(self))):
-            self._launch(topo)
+            #self._launch(topo)
+            tester = Tester(topo)
+            #tester.run_for(60)
+            tester.tuple_count(res, 4, exact=True)
+            tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
         else:
             # build only
             self._build_only(name, topo)
@@ -56,6 +80,7 @@ class Test(unittest.TestCase):
 
 class TestDistributed(Test):
     def setUp(self):
+        Tester.setup_distributed(self)
         # setup test config
         self.test_config = {}
         job_config = context.JobConfig(tracing='info')
@@ -73,9 +98,10 @@ class TestDistributed(Test):
 class TestStreamingAnalytics(Test):
     def setUp(self):
         # setup test config
-        self.test_config = {}
-        job_config = context.JobConfig(tracing='info')
-        job_config.add(self.test_config)
+        #self.test_config = {}
+        #job_config = context.JobConfig(tracing='info')
+        #job_config.add(self.test_config)
+        Tester.setup_streaming_analytics(self, force_remote_build=False)
 
     def _launch(self, topo):
         rc = context.submit('STREAMING_ANALYTICS_SERVICE', topo, self.test_config)
