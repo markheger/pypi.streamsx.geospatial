@@ -1,4 +1,4 @@
-# Python toolkit.geospatial package
+# Python streamsx.geospatial package
 
 This exposes SPL operators in the `com.ibm.streamsx.geospatial` toolkit as Python methods.
 
@@ -49,7 +49,16 @@ When the documented sample must be changed, change it here:
 - ./package/streamsx/geospatial/\_\_init\_\_.py
 - ./package/DESC.txt
 
+## Environment
 
+You need the streamsx package in version 1.13.15 to use and test the streamsx.geospatial package. Install it like this:
+
+    pip install streamsx==1.13.15
+
+In addition you should unset the PYTHONPATH variable to not use the streams package included in your local Streams installation:
+
+    unset PYTHONPATH
+    
 ## Test
 
 When using local build (e.g. not forcing remote build), then you need to specifiy the toolkit location, for example:
@@ -59,30 +68,15 @@ When using local build (e.g. not forcing remote build), then you need to specifi
 
 ### Build only test
 
-
-```
-cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialBuildOnlyTest
-```
-
-
-
-### Standalone test
-
-Make sure that the streams environment is set and the environment variable:
-STREAMS_INSTALL is setup.
-
 Run the test with:
 
-    ant test-standalone
+    ant test-build-only
 
-or
 
 ```
 cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialStandaloneTest
+python3 -u -m unittest streamsx.geospatial.tests.test_regionmatch.Test
 ```
-
 
 
 ### Distributed test
@@ -98,7 +92,7 @@ or
 
 ```
 cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialDistributedTest
+python3 -u -m unittest streamsx.geospatial.tests.test_regionmatch.TestDistributed
 ```
 
 
@@ -115,6 +109,6 @@ or
 
 ```
 cd package
-python3 -u -m unittest streamsx.geospatial.tests.test_geospatial.GeospatialStreamingAnalyticsTest
+python3 -u -m unittest streamsx.geospatial.tests.test_regionmatch.TestStreamingAnalytics
 ```
 

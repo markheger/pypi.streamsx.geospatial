@@ -102,3 +102,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+/package/*.sab
+/package/*.json
+/package/job*.tar.gz
+/**/toolkit.xml
