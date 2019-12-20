@@ -9,21 +9,22 @@ from streamsx.topology.schema import CommonSchema, StreamSchema
 from streamsx.spl.types import rstring
 import datetime
 import json
+from streamsx.geospatial.schema import Schema
 
 def _add_toolkit_dependency(topo):
     # IMPORTANT: Dependency of this python wrapper to a specific toolkit version
     # This is important when toolkit is not set with streamsx.spl.toolkit.add_toolkit (selecting toolkit from remote build service)
     streamsx.spl.toolkit.add_toolkit_dependency(topo, 'com.ibm.streams.geospatial', '[3.4.0,4.0.0)')
 
-def region_match(stream, region_stream, schema, event_type_attribute=None, region_name_attribute=None, id_attribute=None, latitude_attribute=None, longitude_attribute=None, timestamp_attribute=None, name=None):
+def region_match(stream, region_stream, schema=Schema.Events, event_type_attribute=None, region_name_attribute=None, id_attribute=None, latitude_attribute=None, longitude_attribute=None, timestamp_attribute=None, name=None):
     """Uses the RegionMatch operator to compare device data with configured regions.
 
     Stores geographical regions (also called Geofences) together with a set of attributes per region. On the input stream it receives observations from moving devices and matches the device location against the stored regions. As a result it emits events if the device enters, leaves or is hanging out in a region. The regions can be added or removed via the region_stream. The events are send to output stream. 
 
     Args:
-        stream(Stream): Stream of tuples containing device data, which is matched against all configured regions, to detect events.
-        region_stream(Stream): Stream of tuples containing regions.
-        schema(Schema): Output streams schema
+        stream(Stream): Stream of tuples containing device data of schema :py:const:`streamsx.geospatial.schema.Schema.Devices`, which is matched against all configured regions, to detect events.
+        region_stream(Stream): Stream of tuples containing regions of schema :py:const:`streamsx.geospatial.schema.Schema.Regions`
+        schema(Schema): Output streams schema, default schema is :py:const:`streamsx.geospatial.schema.Schema.Events`
         event_type_attribute(str): Specify the name of an ouput Stream attribute of type 'rstring', that will receive the event type (ENTER,EXIT,HANGOUT) if a match is detected. If not specified the default attribute name is 'matchEventType'. 
         region_name_attribute(str): Specifies the name of an ouput Stream attribute of type 'rstring', that will receive the name of the region if a match is detected. If not specified the default attribute name is 'regionName'. 
         id_attribute(str): Specify the name of an attribute of type 'rstring' in the region_stream, that holds the unique identifier of the device. If not specified the default attribute name is 'id'. 
