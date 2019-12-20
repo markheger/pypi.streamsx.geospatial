@@ -12,7 +12,7 @@ Provides functions for geofencing and hangout detection for device location even
 """
 
 
-__version__='0.1.0'
+__version__='1.0.0'
 
 __all__ = [ 'region_match' ]
 from streamsx.geospatial._geospatial import region_match

@@ -13,6 +13,7 @@ running on IBM Cloud see:
 This package exposes SPL operators in the `com.ibm.streams.geospatial` toolkit as Python methods.
 
 .. automodule:: streamsx.geospatial
+.. automodule:: streamsx.geospatial.schema
 
 Indices and tables
 ==================

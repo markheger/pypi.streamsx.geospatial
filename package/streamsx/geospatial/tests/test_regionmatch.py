@@ -12,6 +12,7 @@ import datetime
 import os
 import json
 from subprocess import call, Popen, PIPE
+from streamsx.geospatial.schema import Schema
 
 
 def _get_test_tk_path():
@@ -59,11 +60,10 @@ class Test(unittest.TestCase):
         toolkit.add_toolkit(topo, self.geospatial_toolkit_home)
         self._index_toolkit(_get_test_tk_path())
         toolkit.add_toolkit(topo, _get_test_tk_path())
-        events_schema=StreamSchema('tuple<rstring id, float64 latitude, float64 longitude, timestamp timeStamp, rstring matchEventType, rstring regionName>')
-        datagen = op.Invoke(topo, kind='test::GenData', schemas=['tuple<rstring id, float64 latitude, float64 longitude, timestamp timeStamp, rstring matchEventType, rstring regionName>','tuple<rstring id, rstring polygonAsWKT, boolean removeRegion, boolean notifyOnEntry, boolean notifyOnExit, boolean notifyOnHangout, int64 minimumDwellTime, int64 timeout>'])
+        datagen = op.Invoke(topo, kind='test::GenData', schemas=[Schema.Devices,Schema.Regions])
         device_stream = datagen.outputs[0]
         region_stream = datagen.outputs[1]
-        res = geo.region_match(stream=device_stream, region_stream=region_stream, schema=events_schema)
+        res = geo.region_match(stream=device_stream, region_stream=region_stream)
         res.print()
 
         if (("TestDistributed" in str(self)) or ("TestStreamingAnalytics" in str(self))):
