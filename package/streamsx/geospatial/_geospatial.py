@@ -1,6 +1,6 @@
 # coding=utf-8
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2019
+# Copyright IBM Corp. 2019, 2020
 
 import os
 import streamsx.spl.op as op
@@ -9,7 +9,7 @@ from streamsx.topology.schema import CommonSchema, StreamSchema
 from streamsx.spl.types import rstring
 import datetime
 import json
-from streamsx.geospatial.schema import Schema
+from streamsx.geospatial.schema import RegionMatchSchema
 import streamsx.topology.composite
 
 def _add_toolkit_dependency(topo):
@@ -21,6 +21,16 @@ def _add_toolkit_dependency(topo):
 class FlightPathEncounter(streamsx.topology.composite.Map):
     """
     Composite map transformation for FlightPathEncounter
+
+    Tracks flying objects and calculates possible encounters between the objects in the future.
+    Each incoming tuple contains the latest observation data for one object. The operator stores that data internally and extrapolates the flight path of the object into the future.
+    Than it calculates intersections of the flight path with the paths of all the other objects stored in the operator.
+    For each object that comes close to the input object an output tuple is generated that contains the two objects, their latest observation data and the timestamp in the future when the encounter will happen.
+    In addition the distance between the objects at the calculated time is also included in the output.
+    The conditions for detecting an encounter can be configured via operator parameters searchRadius and altitudeSearchRadius.
+    The observations contain a unique identifier for each object as well as several parameters like longitude,latitude,altitude,heading and speed. Also each observation contains a timestamp.
+
+    You can use the preconfigured type :py:meth:`~streamsx.geospatial.schema.FlighPathEncounterSchema.EncounterEvents` for convenience as input and output schema.
 
     .. versionadded:: 1.1
 
@@ -83,7 +93,7 @@ class FlightPathEncounter(streamsx.topology.composite.Map):
     @property
     def cleanup_interval(self):
         """
-            int: The flying objects are periodically cleaned up from the internal data tables. During cleanup objects are removed whose last observation is older than the current observation minus the 'cleanupInterval'. If not specified the interval defaults to 3 times the value of the 'timeSearchInterval' parameter. Given in milliseconds. The cleanup is not performed on each incoming tuple, instead it is performed when the timestamp of the incoming observation is newer than the timesatmp of the last cleanup plus a third of the 'cleanupInterval' parameter. For example if the 'cleanupInterval' is set to 15 minutes (900000 milliseconds), the operation is invoked roughly every 5 minutes. 
+            int: The flying objects are periodically cleaned up from the internal data tables. During cleanup objects are removed whose last observation is older than the current observation minus the 'cleanup_interval'. If not specified the interval defaults to 3 times the value of the 'time_search_interval' parameter. Given in milliseconds. The cleanup is not performed on each incoming tuple, instead it is performed when the timestamp of the incoming observation is newer than the timesatmp of the last cleanup plus a third of the 'cleanup_interval' parameter. For example if the 'cleanup_interval' is set to 15 minutes (900000 milliseconds), the operation is invoked roughly every 5 minutes. 
         """
         return self._cleanup_interval
 
@@ -95,7 +105,7 @@ class FlightPathEncounter(streamsx.topology.composite.Map):
     @property
     def encounter_attribute(self):
         """
-            str: he name of an output attribute of type TUPLE that will contains the data for a detected encounter. The Tuple must be of type com.ibm.streams.geospatial.FlightPathEncounterTypes.Observation3D
+            str: The name of an output attribute of type TUPLE that will contains the data for a detected encounter. The Tuple must be of type :py:meth:`~streamsx.geospatial.schema.FlighPathEncounterSchema.Observation3D`
         """
         return self._encounter_attribute
 
@@ -131,7 +141,7 @@ class FlightPathEncounter(streamsx.topology.composite.Map):
     @property
     def filter_by_bounding_box(self):
         """
-            bool: Set this parameter to ```True`` if observations whith locations outside the bounding box of the detectors spatial index shall be ignored. The bounding box of the detector is specified by the southLatitude,northLatitude,westLongitude and eastLongitude parameters. The default is ``False`` so all observations are processed. Note that processing observations outside of the box may decrease the spatial index performance. 
+            bool: Set this parameter to ``True`` if observations whith locations outside the bounding box of the detectors spatial index shall be ignored. The bounding box of the detector is specified by the south_latitude, north_latitude, west_longitude and east_longitude parameters. The default is ``False`` so all observations are processed. Note that processing observations outside of the box may decrease the spatial index performance. 
         """
         return self._filter_by_bounding_box
 
@@ -142,7 +152,7 @@ class FlightPathEncounter(streamsx.topology.composite.Map):
     @property
     def observation_attribute(self):
         """
-            str: The name of an input attribute of type TUPLE that contains the data for the observation to process.The Tuple must be of type com.ibm.streams.geospatial.FlightPathEncounterTypes.Observation3D
+            str: The name of an input attribute of type TUPLE that contains the data for the observation to process. The Tuple must be of type :py:meth:`~streamsx.geospatial.schema.FlighPathEncounterSchema.Observation3D`
         """
         return self._observation_attribute
 
@@ -181,15 +191,15 @@ class FlightPathEncounter(streamsx.topology.composite.Map):
         return _op.outputs[0]
 
 
-def region_match(stream, region_stream, schema=Schema.Events, event_type_attribute=None, region_name_attribute=None, id_attribute=None, latitude_attribute=None, longitude_attribute=None, timestamp_attribute=None, name=None):
+def region_match(stream, region_stream, schema=RegionMatchSchema.Events, event_type_attribute=None, region_name_attribute=None, id_attribute=None, latitude_attribute=None, longitude_attribute=None, timestamp_attribute=None, name=None):
     """Uses the RegionMatch operator to compare device data with configured regions.
 
     Stores geographical regions (also called Geofences) together with a set of attributes per region. On the input stream it receives observations from moving devices and matches the device location against the stored regions. As a result it emits events if the device enters, leaves or is hanging out in a region. The regions can be added or removed via the region_stream. The events are send to output stream. 
 
     Args:
-        stream(Stream): Stream of tuples containing device data of schema :py:const:`streamsx.geospatial.schema.Schema.Devices`, which is matched against all configured regions, to detect events.
-        region_stream(Stream): Stream of tuples containing regions of schema :py:const:`streamsx.geospatial.schema.Schema.Regions`
-        schema(Schema): Output streams schema, default schema is :py:const:`streamsx.geospatial.schema.Schema.Events`
+        stream(Stream): Stream of tuples containing device data of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Devices`, which is matched against all configured regions, to detect events.
+        region_stream(Stream): Stream of tuples containing regions of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Regions`
+        schema(Schema): Output streams schema, default schema is :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Events`
         event_type_attribute(str): Specify the name of an ouput Stream attribute of type 'rstring', that will receive the event type (ENTER,EXIT,HANGOUT) if a match is detected. If not specified the default attribute name is 'matchEventType'. 
         region_name_attribute(str): Specifies the name of an ouput Stream attribute of type 'rstring', that will receive the name of the region if a match is detected. If not specified the default attribute name is 'regionName'. 
         id_attribute(str): Specify the name of an attribute of type 'rstring' in the region_stream, that holds the unique identifier of the device. If not specified the default attribute name is 'id'. 
