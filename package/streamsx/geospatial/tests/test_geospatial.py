@@ -12,7 +12,7 @@ import datetime
 import os
 import json
 from subprocess import call, Popen, PIPE
-from streamsx.geospatial.schema import Schema
+from streamsx.geospatial.schema import RegionMatchSchema, FlighPathEncounterSchema
 
 
 def _get_test_tk_path():
@@ -53,29 +53,52 @@ class Test(unittest.TestCase):
             _run_shell_command_line('cd '+tk+'; '+cmd)
 
 
-    def test_with_spl_data_gen(self):
+    def test_region_match(self):
         print ('\n---------'+str(self))
-        name = 'test_with_spl_data_gen'
+        name = 'test_region_match'
         topo = Topology(name)
         toolkit.add_toolkit(topo, self.geospatial_toolkit_home)
         self._index_toolkit(_get_test_tk_path())
         toolkit.add_toolkit(topo, _get_test_tk_path())
-        datagen = op.Invoke(topo, kind='test::GenData', schemas=[Schema.Devices,Schema.Regions])
+        datagen = op.Invoke(topo, kind='test::GenRegionData', schemas=[RegionMatchSchema.Devices,RegionMatchSchema.Regions])
         device_stream = datagen.outputs[0]
         region_stream = datagen.outputs[1]
         res = geo.region_match(stream=device_stream, region_stream=region_stream)
         res.print()
 
         if (("TestDistributed" in str(self)) or ("TestStreamingAnalytics" in str(self))):
-            #self._launch(topo)
             tester = Tester(topo)
-            #tester.run_for(60)
             tester.tuple_count(res, 4, exact=True)
             tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
         else:
             # build only
             self._build_only(name, topo)
 
+
+    def test_flight_path_encounter(self):
+        print ('\n---------'+str(self))
+        name = 'test_flight_path_encounter'
+        topo = Topology(name)
+        toolkit.add_toolkit(topo, self.geospatial_toolkit_home)
+        self._index_toolkit(_get_test_tk_path())
+        toolkit.add_toolkit(topo, _get_test_tk_path())
+        
+        datagen = op.Invoke(topo, kind='test::GenFlightPathData', schemas=[FlighPathEncounterSchema.EncounterEvents])
+        planes_stream = datagen.outputs[0]
+        
+        events = planes_stream.map(geo.FlightPathEncounter(north_latitude=52.6,south_latitude=52.4,west_longitude=13.3,east_longitude=13.5,num_latitude_divs=5,num_longitude_divs=5,search_radius=10000,altitude_search_radius=400,time_search_interval=600000), schema=FlighPathEncounterSchema.EncounterEvents)
+        
+        dump = op.Invoke(topo, inputs=[events], kind='test::DumpData', schemas=CommonSchema.String)
+        res = dump.outputs[0]
+        res.print()
+
+        if (("TestDistributed" in str(self)) or ("TestStreamingAnalytics" in str(self))):
+            tester = Tester(topo)
+            tester.tuple_count(res, 1, exact=True)
+            tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
+        else:
+            # build only
+            self._build_only(name, topo)
 
 
 class TestDistributed(Test):
