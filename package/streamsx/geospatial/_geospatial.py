@@ -32,6 +32,14 @@ class FlightPathEncounter(streamsx.topology.composite.Map):
 
     You can use the preconfigured type :py:meth:`~streamsx.geospatial.schema.FlighPathEncounterSchema.EncounterEvents` for convenience as input and output schema.
 
+    Example with input stream "planes_stream" of type "FlighPathEncounterSchema"::
+
+        import streamsx.geospatial as geo
+        from streamsx.geospatial.schema import FlighPathEncounterSchema
+        ...
+        events = planes_stream.map(geo.FlightPathEncounter(north_latitude=52.6,south_latitude=52.4,west_longitude=13.3,east_longitude=13.5,num_latitude_divs=5,num_longitude_divs=5,search_radius=10000,altitude_search_radius=400,time_search_interval=600000), schema=FlighPathEncounterSchema.EncounterEvents)
+
+
     .. versionadded:: 1.1
 
     Attributes
@@ -195,6 +203,12 @@ def region_match(stream, region_stream, schema=RegionMatchSchema.Events, event_t
     """Uses the RegionMatch operator to compare device data with configured regions.
 
     Stores geographical regions (also called Geofences) together with a set of attributes per region. On the input stream it receives observations from moving devices and matches the device location against the stored regions. As a result it emits events if the device enters, leaves or is hanging out in a region. The regions can be added or removed via the region_stream. The events are send to output stream. 
+
+    Example with input streams "device_stream" and "region_stream"::
+
+        import streamsx.geospatial as geo
+        ...
+        res = geo.region_match(stream=device_stream, region_stream=region_stream)
 
     Args:
         stream(Stream): Stream of tuples containing device data of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Devices`, which is matched against all configured regions, to detect events.
