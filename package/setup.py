@@ -5,10 +5,10 @@ setup(
   packages = ['streamsx.geospatial'],
   include_package_data=True,
   version = streamsx.geospatial.__version__,
-  description = 'IBM Streams geospatial toolkit integration',
+  description = 'Geospatial integration for IBM Streams',
   long_description = open('DESC.txt').read(),
   author = 'IBM Streams @ github.com',
-  author_email = 'brandtol@de.ibm.com',
+  author_email = 'hegermar@de.ibm.com',
   license='Apache License - Version 2.0',
   url = 'https://github.com/IBMStreams/pypi.streamsx.geospatial',
   keywords = ['streams', 'ibmstreams', 'streaming', 'analytics', 'streaming-analytics', 'geospatial'],
@@ -19,7 +19,7 @@ setup(
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
   ],
-  install_requires=['streamsx>=1.13.15'],
+  install_requires=['streamsx>=1.14.2a0,<2.0'],
   
   test_suite='nose.collector',
   tests_require=['nose']
