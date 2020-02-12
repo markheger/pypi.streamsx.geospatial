@@ -2,7 +2,7 @@ namespace test;
 
 use com.ibm.streams.geospatial::RegionMatchTypes;
 
-public composite GenData (output DeviceEvents, RegionData) {
+public composite GenRegionData (output DeviceEvents, RegionData) {
 
 	type
 	
