@@ -6,8 +6,8 @@
 """
 
 
-__version__='1.1.0'
+__version__='1.1.1'
 
-__all__ = [ 'region_match', 'FlightPathEncounter' ]
+__all__ = [ 'FlightPathEncounter', 'region_match' ]
 from streamsx.geospatial._geospatial import region_match, FlightPathEncounter
 
