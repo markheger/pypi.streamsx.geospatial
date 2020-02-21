@@ -211,8 +211,8 @@ def region_match(stream, region_stream, schema=RegionMatchSchema.Events, event_t
         res = geo.region_match(stream=device_stream, region_stream=region_stream)
 
     Args:
-        stream(Stream): Stream of tuples containing device data of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Devices`, which is matched against all configured regions, to detect events.
-        region_stream(Stream): Stream of tuples containing regions of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Regions`
+        stream(streamsx.topology.topology.Stream): Stream of tuples containing device data of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Devices`, which is matched against all configured regions, to detect events.
+        region_stream(streamsx.topology.topology.Stream): Stream of tuples containing regions of schema :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Regions`
         schema(Schema): Output streams schema, default schema is :py:const:`streamsx.geospatial.schema.RegionMatchSchema.Events`
         event_type_attribute(str): Specify the name of an ouput Stream attribute of type 'rstring', that will receive the event type (ENTER,EXIT,HANGOUT) if a match is detected. If not specified the default attribute name is 'matchEventType'. 
         region_name_attribute(str): Specifies the name of an ouput Stream attribute of type 'rstring', that will receive the name of the region if a match is detected. If not specified the default attribute name is 'regionName'. 
@@ -223,7 +223,7 @@ def region_match(stream, region_stream, schema=RegionMatchSchema.Events, event_t
         name(str): Operator name in the Streams context, defaults to a generated name.
 
     Returns:
-        Output Stream with specified schema
+        :py:class:`topology_ref:streamsx.topology.topology.Stream`: Output Stream with specified schema
     """
     # python wrapper geospatial toolkit dependency
     _add_toolkit_dependency(stream.topology)
